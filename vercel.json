@@ -1,9 +1,3 @@
 {
-  "outputDirectory": "public",
-  "rewrites": [
-    {
-      "source": "/chk_page",
-      "destination": "/index.html"
-    }
-  ]
+  "version": 2
 }
