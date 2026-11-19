@@ -633,23 +633,50 @@
         </div>
       </div>
 
-      <!-- 학생 닉네임 조회 박스 -->
-      <div class="lookup-bar" id="studentLookupBar">
-        <div class="lookup-input-group">
-          <input type="text" id="lookupStudentInput" placeholder="채점할때 [학생닉네임]에 입력한 명칭을 입력후 [보기]버튼을 클릭하면 자신의 회차별 점수를 한번에 볼 수 있습니다." value="짱아" />
-          <button type="button" id="btnLookupStudent">보기</button>
+      <!-- 학생 닉네임 & 선생님 ID 통합 조회 섹션 -->
+      <div class="lookup-section-header">
+        <div>
+          <h4 class="lookup-section-title">🔎 수험생 회차별 성적 이력 &amp; 선생님 클래스 성적표 조회</h4>
+          <p class="lookup-section-desc">채점할 때 입력한 <strong>[학생 닉네임]</strong>이나 <strong>[선생님 ID]</strong>로 지금까지 응시한 모든 회차의 점수 추이와 학급 통합 성적표(CSV 다운로드 지원)를 즉시 열람할 수 있습니다.</p>
         </div>
+        <span class="lookup-live-badge">⚡ Supabase 실시간 DB 연동 조회</span>
       </div>
-      <div class="lookup-result-panel" id="studentHistoryPanel" style="display:none;"></div>
 
-      <!-- 선생님 ID 조회 박스 -->
-      <div class="lookup-bar" id="teacherLookupBar">
-        <div class="lookup-input-group">
-          <input type="text" id="lookupTeacherInput" placeholder="선생님ID(4자이상)" value="Zzang_AA" />
-          <button type="button" id="btnLookupTeacher">보기</button>
+      <div class="lookup-cards-grid">
+        <!-- 학생 닉네임 조회 카드 -->
+        <div class="lookup-card" id="studentLookupBar">
+          <div class="lookup-card-head">
+            <span class="lookup-role-badge student">👩‍🎓 수험생 개인 성적표</span>
+            <strong class="lookup-card-title">학생 닉네임별 회차 성적 · 합격 추이 조회</strong>
+          </div>
+          <p class="lookup-card-guide">
+            채점 시 <strong>[학생 닉네임]</strong> 칸에 적었던 이름을 입력하고 버튼을 누르면, 본인이 응시한 전 회차의 영역별 점수와 평균·합격 여부를 한눈에 확인할 수 있습니다.
+          </p>
+          <div class="lookup-input-group">
+            <span class="lookup-input-prefix">닉네임</span>
+            <input type="text" id="lookupStudentInput" placeholder="예: 짱아 (채점 시 입력한 학생 닉네임)" value="짱아" />
+            <button type="button" id="btnLookupStudent">📊 내 성적 이력 보기</button>
+          </div>
+          <div class="lookup-result-panel" id="studentHistoryPanel" style="display:none;"></div>
+        </div>
+
+        <!-- 선생님 ID 조회 카드 -->
+        <div class="lookup-card" id="teacherLookupBar">
+          <div class="lookup-card-head">
+            <span class="lookup-role-badge teacher">👨‍🏫 선생님 클래스 관리</span>
+            <strong class="lookup-card-title">선생님 ID별 수강생 통합 성적표 · CSV 조회</strong>
+          </div>
+          <p class="lookup-card-guide">
+            채점 시 <strong>[선생님 ID]</strong>(4자 이상)로 제출된 학급·스터디 소속 수험생들의 전체 채점 기록과 합격률을 조회하고 엑셀(CSV) 파일로 내려받을 수 있습니다.
+          </p>
+          <div class="lookup-input-group">
+            <span class="lookup-input-prefix">선생님 ID</span>
+            <input type="text" id="lookupTeacherInput" placeholder="예: Zzang_AA (4자 이상 선생님 ID)" value="Zzang_AA" />
+            <button type="button" id="btnLookupTeacher">📋 학급 성적표 보기</button>
+          </div>
+          <div class="lookup-result-panel" id="teacherReportPanel" style="display:none;"></div>
         </div>
       </div>
-      <div class="lookup-result-panel" id="teacherReportPanel" style="display:none;"></div>
     </section>
 
     <!-- 하단 배너 및 푸터 -->
