@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>이기적 컴퓨터활용능력 2급 실기 자동채점 프로그램 &amp; 스마트 학습 플랫폼 (2026)</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    @font-face {
+      font-family: 'G마켓 산스 TTF Medium';
+      src: local('G마켓 산스 TTF Medium'),
+           local('Gmarket Sans TTF Medium'),
+           local('GmarketSansTTFMedium'),
+           local('GmarketSansMedium'),
+           url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'G마켓 산스 TTF Light';
+      src: local('G마켓 산스 TTF Light'),
+           local('Gmarket Sans TTF Light'),
+           local('GmarketSansTTFLight'),
+           local('GmarketSansLight'),
+           url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff');
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+    :root {
+      --viz-step-1: #1E3A8A;
+      --grad-start: #1E40AF;
+      --primary-solid: #2563EB;
+      --viz-step-2: #2563EB;
+      --sky-blue: #38BDF8;
+      --viz-step-3: #60A5FA;
+      --viz-step-4: #93C5FD;
+      --border-accent: #93C5FD;
+      --bg-tint: #EFF6FF;
+      --grad-primary: linear-gradient(135deg, #1E40AF 0%, #2563EB 52%, #38BDF8 100%);
+      --grad-acrylic-glow: linear-gradient(135deg, #2563EB 0%, #60A5FA 55%, #93C5FD 100%);
+      --grad-dark-stage: linear-gradient(135deg, #111827 0%, #1E3A8A 100%);
+      --grad-soft-card: linear-gradient(145deg, #EFF6FF 0%, #FFFFFF 65%);
+      --bg-page: #FFFFFF;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F8FAFC;
+      --border-subtle: #E2E8F0;
+      --viz-step-5: #CBD5E1;
+      --text-sub: #475569;
+      --text-body: #1E293B;
+      --text-title: #0F172A;
+      --bg-dark-anchor: #111827;
+      --status-correct-tx: #059669;
+      --status-correct-bg: #ECFDF5;
+      --status-warn-tx: #D97706;
+      --status-warn-bg: #FFFBEB;
+      --status-wrong-tx: #E11D48;
+      --status-wrong-bg: #FFF1F2;
+      --pace-good: #10B981;
+      --pace-warn: #F59E0B;
+      --pace-over: #FB7185;
+      --font-medium: 'G마켓 산스 TTF Medium', 'GmarketSansMedium', 'Malgun Gothic', sans-serif;
+      --font-light: 'G마켓 산스 TTF Light', 'GmarketSansLight', 'Malgun Gothic', sans-serif;
+      --font-exam-malgun: '맑은 고딕', 'Malgun Gothic', '굴림', 'Gulim', sans-serif;
+      --font-exam-gulim: '굴림', 'Gulim', '굴림체', 'GulimChe', '맑은 고딕', sans-serif;
+      --font-exam-batang: '바탕', 'Batang', '바탕체', 'BatangChe', '명조', serif;
+    }
+    .exam-paper-sheet,
+    .exam-paper-sheet.exam-font-malgun,
+    .exam-paper-sheet.exam-font-malgun * {
+      font-family: var(--font-exam-malgun) !important;
+      letter-spacing: -0.01em;
+    }
+    .exam-paper-sheet.exam-font-gulim,
+    .exam-paper-sheet.exam-font-gulim * {
+      font-family: var(--font-exam-gulim) !important;
+      letter-spacing: 0;
+    }
+    .exam-paper-sheet.exam-font-batang,
+    .exam-paper-sheet.exam-font-batang * {
+      font-family: var(--font-exam-batang) !important;
+      letter-spacing: -0.01em;
+    }
+    .exam-paper-sheet code,
+    .exam-paper-sheet .exam-q-ans {
+      font-family: Consolas, '굴림체', 'GulimChe', monospace !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- 상단 네비게이션 바 -->
+  <header class="top-navbar">
+    <div class="nav-container">
+      <div class="nav-links">
+        <a href="#top">🏠 채점프로그램 Home</a>
+        <button class="nav-link-btn" id="btnNavSampleGuide">📘 사용법 &amp; 샘플채점표</button>
+        <button class="nav-link-btn" id="btnNavGenerator">🎲 모의고사 문제지 &amp; 생성기</button>
+        <button class="nav-link-btn" id="btnNavWrongNote">📝 나만의 오답노트 &amp; 인쇄</button>
+        <button class="nav-link-btn" id="btnHelpModal">❓ 도움말 및 배점기준</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="url-badge" id="supabaseStatusBadge" style="background:rgba(16,185,129,0.22);color:#10B981;border:1px solid rgba(16,185,129,0.5);">🟢 Supabase DB 연결중...</span>
+        <div class="url-badge" id="urlParamBadge">co=youngjin · year=2026 · subject=excel · level=2</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrapper" id="top">
+    <!-- 주요 학습 메뉴 바로가기 바 -->
+    <section class="upgrade-ribbon">
+      <div class="upgrade-ribbon-title">
+        <span>🧭 주요 학습 메뉴 바로가기</span>
+      </div>
+      <div class="upgrade-steps">
+        <button class="upgrade-pill active" data-step="1">① 파일 사전 진단</button>
+        <button class="upgrade-pill" data-step="2">② 오답 셀 비교</button>
+        <button class="upgrade-pill" data-step="3">③ 문항별 해설 강좌</button>
+        <button class="upgrade-pill" data-step="4">④ 영역별 역량 차트</button>
+        <button class="upgrade-pill" data-step="5">⑤ 학급 성적표 다운</button>
+        <button class="upgrade-pill" data-step="7">📘 사용법·샘플채점표</button>
+        <button class="upgrade-pill" data-step="8">📝 오답노트·인쇄</button>
+        <button class="upgrade-pill gen-pill" data-step="6">🎲 모의고사 문제지 &amp; 생성기</button>
+      </div>
+    </section>
+
+    <!-- 사이트 유의사항 배너 -->
+    <section class="notice-card" id="noticeBanner">
+      <div class="book-cover-box">
+        <div class="book-cover-top">베스트셀러<br/>이기적</div>
+        <div class="book-cover-badge">1위</div>
+        <div class="book-cover-bottom">
+          <div class="title">컴퓨터활용능력<br/>2급 실기 기본서</div>
+          <div class="year">26</div>
+        </div>
+      </div>
+      <div class="notice-content">
+        <h3>ℹ️ 사이트 유의사항</h3>
+        <p>본 사이트는 출판사의 채점프로그램 개발자가 직접 운영하고 있습니다. 교재에서 제공하는 채점프로그램과 동일한 채점 결과를 제공하며, 사이트 오류 발생 시 <strong>test@hanafostest.com</strong>으로 교재명, 연도, 급수 및 채점 파일을 첨부해주시면 신속히 반영하겠습니다.</p>
+        <p class="sub-note">※ 단순 오답 문의는 출판사 Q&amp;A 게시판을 이용 부탁드립니다. (합격 기준: 100점 만점 중 70점 이상, 시험시간 40분)</p>
+      </div>
+    </section>
+
+    <!-- 메인 2단 그리드 -->
+    <div class="main-grid">
+      <!-- 왼쪽 컬럼 -->
+      <div class="left-col">
+        <!-- 카드 1: 문제 유형 선택 -->
+        <section class="card" id="problemSelectCard">
+          <div class="card-header">
+            <div class="card-title">📋 문제 유형 선택</div>
+            <div class="timer-widget" id="examTimerBtn" title="클릭하여 40분 실전 시험 타이머 시작/일시정지">
+              <span>⏰</span>
+              <span id="timerDisplay">40:00</span>
+              <span id="timerPaceHint" style="font-size:11px;color:#059669;">(기본작업 5분 권장)</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label" for="roundSelect">회차 선택</label>
+            <select class="form-select" id="roundSelect">
+              <option value="대표기출따라하기">대표기출따라하기 (정육식당·셔틀버스·스마트폰)</option>
+              <option value="기본모의고사 01회">기본모의고사 01회 (상공전자 인사급여·도서판매)</option>
+              <option value="기본모의고사 02회">기본모의고사 02회 (대한물류 배송현황·해외수출)</option>
+              <option value="기출문제 01회">상시기출복원 01회 (문화센터 수강·호텔예약)</option>
+              <option value="기출문제 02회">상시기출복원 02회 (스마트팜 수확량·장학금)</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <span class="form-label">문제 파일</span>
+            <div class="btn-group-2">
+              <button class="btn-outline" id="btnDownloadRound" type="button">📥 해당회차 다운(.xlsx)</button>
+              <button class="btn-outline" id="btnDownloadAllZip" type="button">🗂️ 모범정답 다운(.xlsx)</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <span class="form-label">문제지·생성</span>
+            <div class="btn-group-2">
+              <button class="btn-outline" id="btnViewExamPaper" type="button" style="border-color:#2563EB;color:#1E40AF;">📖 이 회차 문제지 보기</button>
+              <button class="btn-purple" id="btnOpenGeneratorQuick" type="button">🎲 새 모의고사 생성기</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <span class="form-label">정보 입력</span>
+            <div class="btn-group-2">
+              <input class="form-input" id="teacherIdInput" type="text" placeholder="선생님 ID" value="Zzang_AA" />
+              <input class="form-input" id="studentNameInput" type="text" placeholder="학생 닉네임" value="짱아" />
+            </div>
+          </div>
+
+          <div class="form-row" style="align-items: start;">
+            <span class="form-label" style="padding-top: 10px;">작성 파일</span>
+            <div>
+              <div class="upload-dropzone" id="uploadDropzone">
+                ☁️ <span id="selectedFileLabel">채점할 파일 선택 (.xlsm / .xlsx)</span>
+              </div>
+              <input type="file" id="fileInput" accept=".xlsm,.xlsx" style="display:none;" />
+            </div>
+          </div>
+
+          <!-- 원클릭 테스트용 샘플 파일 선택기 -->
+          <div class="preset-box">
+            <div class="preset-box-title">
+              <span>⚡ 실전 샘플 채점표 즉시 체험 (클릭 시 점수·오답노트 자동 반영)</span>
+              <span style="color:#2563EB;">원클릭 시연</span>
+            </div>
+            <div class="preset-btns">
+              <button class="preset-btn" data-preset="raw0" type="button">📄 문제샘플(작성전) [0점]</button>
+              <button class="preset-btn" data-preset="fail51" type="button">⚠️ 오답다수 샘플 [53점 불합격]</button>
+              <button class="preset-btn" data-preset="pass82" type="button">✅ 합격생 샘플 [81점 합격]</button>
+              <button class="preset-btn" data-preset="perfect100" type="button">🏆 모범정답 샘플 [100점 만점]</button>
+            </div>
+          </div>
+
+          <!-- 브라우저 즉시 사전 검사 -->
+          <div class="preflight-box" id="preflightBox">
+            <div class="preflight-header">
+              <span>🔍 파일 무결성 사전 진단 (시트 구조 · 수식 작성 체크)</span>
+              <span id="preflightStatusBadge" style="font-size:11px;background:#ECFDF5;color:#059669;padding:2px 8px;border-radius:10px;">대기중</span>
+            </div>
+            <div id="preflightChecklist">
+              <div class="preflight-item">✔️ 엑셀 파일을 선택하거나 위 샘플 버튼을 누르면 채점 전 시트 누락·수식 누락을 즉시 진단합니다.</div>
+            </div>
+          </div>
+
+          <div class="action-bar">
+            <div class="queue-badge">
+              대기자 <span class="queue-num" id="queueCount">1</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-grade" id="btnStartGrade" type="button">📝 채점시작</button>
+              <button class="btn-outline" id="btnPrint" type="button">🖨️ 성적표 인쇄</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 카드 2: 작업별 상세 점수 -->
+        <section class="card" id="sectionScoreCard">
+          <div class="card-header">
+            <div class="card-title">🎓 작업별 상세 점수</div>
+            <span style="font-size:11.5px;color:#475569;">합격기준: 70점 이상</span>
+          </div>
+
+          <div class="score-row">
+            <div class="prob-badge">문제1</div>
+            <div class="prob-label-box">기본작업[20점]</div>
+            <div class="prob-meter-box">
+              <div class="prob-meter-fill" id="meterBasic"></div>
+              <span id="scoreBasicText">0 / 20점</span>
+            </div>
+          </div>
+
+          <div class="score-row">
+            <div class="prob-badge">문제2</div>
+            <div class="prob-label-box">계산작업[40점]</div>
+            <div class="prob-meter-box">
+              <div class="prob-meter-fill" id="meterCalc"></div>
+              <span id="scoreCalcText">0 / 40점</span>
+            </div>
+          </div>
+
+          <div class="score-row">
+            <div class="prob-badge">문제3</div>
+            <div class="prob-label-box">분석작업[20점]</div>
+            <div class="prob-meter-box">
+              <div class="prob-meter-fill" id="meterAnalysis"></div>
+              <span id="scoreAnalysisText">0 / 20점</span>
+            </div>
+          </div>
+
+          <div class="score-row">
+            <div class="prob-badge">문제4</div>
+            <div class="prob-label-box">기타작업[20점]</div>
+            <div class="prob-meter-box">
+              <div class="prob-meter-fill" id="meterEtc"></div>
+              <span id="scoreEtcText">0 / 40점</span>
+            </div>
+          </div>
+
+          <div class="total-score-banner" id="totalScoreBanner">
+            <div class="label">TOTAL SCORE</div>
+            <div class="score-val"><span id="totalScoreNum">0</span> <span style="font-size:18px;">점</span></div>
+            <div class="pass-pill" id="passStatusPill">채점 전 (70점 이상 합격)</div>
+          </div>
+        </section>
+      </div>
+
+      <!-- 오른쪽 컬럼: 감점 내역 및 분석 + 오답 셀 비교 & 해설 타임스탬프 -->
+      <div class="right-col">
+        <section class="card" id="deductionCard">
+          <div class="card-header">
+            <div class="card-title">📊 감점 내역 및 분석</div>
+            <div class="stat-badges">
+              <span class="stat-pill-blue">👤 인원: <span id="statParticipants">2103</span>명</span>
+              <span class="stat-pill-green">📈 평균: <span id="statAverage">39.01</span>점</span>
+            </div>
+          </div>
+
+          <div class="deduction-table-wrap">
+            <table class="deduction-table">
+              <thead>
+                <tr>
+                  <th style="width:105px;">문제번호</th>
+                  <th style="width:140px;">작업내용</th>
+                  <th style="width:60px;">감점</th>
+                  <th>오류 상세내용</th>
+                  <th style="width:145px;">상세 비교 · 해설</th>
+                </tr>
+              </thead>
+              <tbody id="deductionTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- 오답 셀 미니맵 비교 & 1:1 오답 코치 패널 -->
+          <div class="visual-diff-panel" id="visualDiffPanel">
+            <div class="visual-diff-header">
+              <div style="font-size:14px;color:#0F172A;">
+                <strong>🔬 오답 셀 비교 (내 엑셀 파일 vs 모범 정답)</strong>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="minimap-btn" id="btnAddSelectedToWrongNote" type="button">📝 이 문항 오답노트에 강조 추가</button>
+                <button class="timestamp-btn" id="btnDiffVideoJump" type="button">🎬 이 문항 해설 바로보기 (11:45)</button>
+              </div>
+            </div>
+            <div class="coach-bubble" id="aiCoachBubble"></div>
+            <div id="diffGridContainer">
+              <table class="excel-diff-grid">
+                <thead>
+                  <tr>
+                    <th style="width:130px;">시트 / 셀 주소</th>
+                    <th>내 파일 입력값·수식 (수험생)</th>
+                    <th>모범 정답값·수식 (채점 기준)</th>
+                    <th style="width:80px;">판정</th>
+                  </tr>
+                </thead>
+                <tbody id="diffTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         신규 섹션 1: 웹페이지 사용법 가이드 & 실전 샘플 문항 · 샘플 채점표
+         ====================================================================== -->
+    <section class="sample-guide-section" id="sampleGuideSection">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;">
+        <div>
+          <h3 style="font-size:17px;color:#1E40AF;display:flex;align-items:center;gap:8px;">
+            <span>📘 웹페이지 사용법 가이드 &amp; 실전 샘플 문항 · 샘플 채점표</span>
+            <span style="font-size:11.5px;background:#EFF6FF;color:#1E40AF;border:1px solid #93C5FD;padding:3px 10px;border-radius:999px;">처음 오신 분들을 위한 1분 완벽 가이드</span>
+          </h3>
+          <p style="font-size:13px;color:#475569;margin-top:3px;">
+            이 웹사이트는 실제 컴퓨터활용능력 2급 실기 시험과 동일한 8개 시트 엑셀 파일을 자동으로 채점하고, 부분점수·감점 원인과 맞춤형 오답노트를 제공하는 스마트 학습 플랫폼입니다.
+          </p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="btn-outline" id="btnLoadSamplePass81">✅ 81점 합격 샘플 채점표 불러오기</button>
+          <button type="button" class="btn-outline" id="btnLoadSampleFail53">⚠️ 53점 보완필요 샘플 채점표 불러오기</button>
+        </div>
+      </div>
+
+      <!-- 3단계 사용법 카드 -->
+      <div class="usage-steps-grid">
+        <div class="usage-step-card">
+          <span class="usage-step-num">STEP 1 · 문제 선택 및 다운로드</span>
+          <h4 style="font-size:14.5px;color:#0F172A;margin-bottom:6px;">회차 선택 또는 새 모의고사 생성</h4>
+          <p style="font-size:12.5px;color:#1E293B;">
+            좌측 <strong>[문제 유형 선택]</strong>에서 기출 회차를 고르거나 아래 <strong>[문제 생성기]</strong>에서 새 모의고사를 만든 뒤, <strong>[해당회차 다운(.xlsx)]</strong>으로 8개 시트 문제 파일을 내려받습니다.
+          </p>
+        </div>
+        <div class="usage-step-card">
+          <span class="usage-step-num">STEP 2 · 40분 타이머 풀이 &amp; 사전 진단</span>
+          <h4 style="font-size:14.5px;color:#0F172A;margin-bottom:6px;">엑셀 작성 후 파일 업로드</h4>
+          <p style="font-size:12.5px;color:#1E293B;">
+            상단 <strong>[⏰ 40:00]</strong> 타이머를 켜고 엑셀을 풀이한 뒤 파일을 업로드하면, <strong>사전 진단기</strong>가 0.1초 만에 시트 이름 변경이나 수식(`=`) 누락 여부를 먼저 점검해 줍니다.
+          </p>
+        </div>
+        <div class="usage-step-card">
+          <span class="usage-step-num">STEP 3 · 자동 채점 &amp; 오답노트 출력</span>
+          <h4 style="font-size:14.5px;color:#0F172A;margin-bottom:6px;">셀 비교 · 해설 강좌 · 오답노트 인쇄</h4>
+          <p style="font-size:12.5px;color:#1E293B;">
+            <strong>[채점시작]</strong>을 누르면 영역별 점수(100점 만점)와 감점 상세 내역이 산출되며, 틀린 문제는 <strong>[나만의 오답노트]</strong>로 자동 정리되어 A4 시험지 형태로 인쇄할 수 있습니다.
+          </p>
+        </div>
+      </div>
+
+      <!-- 실전 샘플 문항(엑셀 미리보기 + 실시간 수식 연습기) & 샘플 채점표 비교 -->
+      <div class="sample-compare-grid">
+        <!-- 좌측: 실전 샘플 문항 및 실시간 수식 연습기 -->
+        <div style="border:1px solid #CBD5E1;border-radius:12px;padding:16px;background:#F8FAFC;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <strong style="color:#1E3A8A;font-size:14px;">📝 실전 샘플 문항 미리보기 (계산작업 2번 - 배점 8점)</strong>
+            <span style="font-size:11px;background:#ECFDF5;color:#059669;padding:2px 8px;border-radius:999px;">출제빈도 1위 유형</span>
+          </div>
+          <div class="exam-paper-sheet exam-font-malgun" style="background:#FFFFFF;border:1px solid #94A3B8;border-radius:6px;padding:12px;margin-bottom:12px;font-size:13px;">
+            <p style="margin-bottom:8px;"><strong>[문제]</strong> [표2] 영업부서별 실적표에서 매장위치(<code>H3:H6</code>)가 <strong>"백화점"</strong>이면서 판매실적(<code>I3:I6</code>)이 전체 평균 이상이면 <strong>"우수매장"</strong>, 그 외에는 공백(<code>""</code>)을 비고(<code>J3:J6</code>) 영역에 표시하시오.<br/>
+            <span style="color:#1E40AF;">▶ 조건: IF, AND, AVERAGE 함수를 모두 사용할 것 (부분점수 없음, 8점)</span></p>
+            <table class="excel-diff-grid" style="font-size:12px;">
+              <thead>
+                <tr>
+                  <th style="width:45px;text-align:center;">행/열</th>
+                  <th>F (소속)</th>
+                  <th>G (부서명)</th>
+                  <th>H (매장위치)</th>
+                  <th>I (판매실적)</th>
+                  <th>J (비고 - 채점대상)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td style="text-align:center;">3</td><td>서울본부</td><td>강북영업</td><td>백화점</td><td>4,460</td><td class="cell-correct">"" (평균 5197.5 미만)</td></tr>
+                <tr><td style="text-align:center;">4</td><td>서울본부</td><td>강서영업</td><td>쇼핑몰</td><td>6,800</td><td class="cell-correct">"" (쇼핑몰 제외)</td></tr>
+                <tr><td style="text-align:center;">5</td><td>서울본부</td><td>강남영업</td><td>백화점</td><td>5,580</td><td class="cell-correct">"우수매장"</td></tr>
+                <tr><td style="text-align:center;">6</td><td>경기본부</td><td>분당영업</td><td>백화점</td><td>6,950</td><td class="cell-correct">"우수매장"</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 인터랙티브 미니 수식 연습장 -->
+          <div style="background:#EFF6FF;border:1px solid #93C5FD;border-radius:8px;padding:12px;">
+            <div style="font-size:12px;color:#1E40AF;margin-bottom:6px;">
+              <strong>⌨️ 웹에서 바로 해보는 미니 수식 연습장 (J3 셀 수식을 직접 입력해 보세요!)</strong>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <input type="text" id="liveFormulaInput" class="form-input" style="font-family:Consolas,monospace;font-size:12px;" value='=IF(AND(H3="백화점", I3>=AVERAGE($I$3:$I$10)), "우수매장", "")' />
+              <button type="button" class="btn-grade" id="btnTestLiveFormula" style="white-space:nowrap;padding:8px 14px;font-size:12px;">수식 채점해보기</button>
+            </div>
+            <div id="liveFormulaFeedback" style="margin-top:7px;font-size:12px;color:#059669;">
+              🟢 <strong>정답 인정 (+8점):</strong> 필수 함수(IF, AND, AVERAGE) 3개 모두 사용 및 절대참조(<code>$I$3:$I$10</code>) 정확!
+            </div>
+          </div>
+        </div>
+
+        <!-- 우측: 실전 샘플 채점표 (영역별 배점·부분점수·감점 판정 예시표) -->
+        <div style="border:1px solid #CBD5E1;border-radius:12px;padding:16px;background:#F8FAFC;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <strong style="color:#1E3A8A;font-size:14px;">📊 실전 샘플 채점표 (짱아 수험생 81점 합격 vs 53점 보완 비교)</strong>
+            <span style="font-size:11px;background:#EFF6FF;color:#1E40AF;padding:2px 8px;border-radius:999px;">합격선: 70점 이상</span>
+          </div>
+          <table class="excel-diff-grid" style="font-size:12px;margin-bottom:10px;">
+            <thead>
+              <tr>
+                <th>출제 영역 (시트명)</th>
+                <th>배점</th>
+                <th>부분점수 여부</th>
+                <th>합격 샘플(81점)</th>
+                <th>불합격 샘플(53점)</th>
+                <th>주요 감점 포인트</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>기본작업-1</strong> (데이터 입력)</td>
+                <td>5점</td>
+                <td style="color:#E11D48;">없음 (All/0)</td>
+                <td class="cell-correct">5점</td>
+                <td class="cell-wrong">0점 (-5)</td>
+                <td>대소문자 오타(<code>sp-101</code>) 1개로 전액 감점</td>
+              </tr>
+              <tr>
+                <td><strong>기본작업-2</strong> (셀 서식 5문항)</td>
+                <td>10점</td>
+                <td style="color:#059669;">있음 (각 2점)</td>
+                <td class="cell-correct">6점 (-4)</td>
+                <td class="cell-warn" style="background:#FFFBEB;color:#D97706;">6점 (-4)</td>
+                <td>표준 색-노랑 및 굵은 상자 테두리 미적용</td>
+              </tr>
+              <tr>
+                <td><strong>기본작업-3</strong> (조건부 서식)</td>
+                <td>5점</td>
+                <td style="color:#E11D48;">없음 (All/0)</td>
+                <td class="cell-correct">5점</td>
+                <td class="cell-wrong">0점 (-5)</td>
+                <td>혼합참조(<code>=$E4>=7</code>) 대신 <code>$E$4</code> 작성</td>
+              </tr>
+              <tr>
+                <td><strong>계산작업</strong> (함수 5문항)</td>
+                <td>40점</td>
+                <td style="color:#E11D48;">문항당 8점</td>
+                <td class="cell-correct">32점 (4문항 정답)</td>
+                <td class="cell-wrong">24점 (3문항 정답)</td>
+                <td>수식 없이 결과값만 직접 입력 시 0점</td>
+              </tr>
+              <tr>
+                <td><strong>분석작업-1·2</strong> (목표값/통합)</td>
+                <td>20점</td>
+                <td style="color:#E11D48;">문항당 10점</td>
+                <td class="cell-correct">20점 (만점)</td>
+                <td class="cell-wrong">10점 (-10)</td>
+                <td>데이터 통합 시 [첫 행/왼쪽 열] 체크 누락</td>
+              </tr>
+              <tr>
+                <td><strong>기타작업</strong> (매크로 10 + 차트 10)</td>
+                <td>20점</td>
+                <td style="color:#059669;">있음 (세부배점)</td>
+                <td class="cell-correct">13점 (-7)</td>
+                <td class="cell-correct">13점 (-7)</td>
+                <td>도형 매크로 지정(-5) 및 둥근 모서리(-2)</td>
+              </tr>
+              <tr style="background:#EFF6FF;">
+                <td><strong>총점 합계 (100점 만점)</strong></td>
+                <td><strong>100점</strong></td>
+                <td><strong>70점 이상 합격</strong></td>
+                <td style="color:#059669;"><strong>81점 (합격 PASS)</strong></td>
+                <td style="color:#E11D48;"><strong>53점 (불합격 -17점)</strong></td>
+                <td>기본1·3과 분석작업만 지켜도 +20점 상승!</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="font-size:12px;color:#475569;">
+            💡 <strong>샘플 채점표 활용 팁:</strong> 위 표에서 보듯 <strong>부분점수가 없는 파트(기본1·3, 계산, 분석)</strong>의 실수를 줄이는 것이 70점 합격의 지름길입니다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         신규 섹션 2: 나만의 맞춤 오답노트 & 인쇄/PDF 출력 (#wrongNoteSection)
+         ====================================================================== -->
+    <section class="wrong-note-section" id="wrongNoteSection">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #1E3A8A;">
+        <div>
+          <h3 style="font-size:17px;color:#1E3A8A;display:flex;align-items:center;gap:8px;">
+            <span>📝 나만의 맞춤 오답노트 (자동 오답 수집 · 복습 메모 · 시험지형 출력)</span>
+            <span style="font-size:11.5px;background:#EFF6FF;color:#1E40AF;border:1px solid #93C5FD;padding:3px 10px;border-radius:999px;" id="wrongNoteCountBadge">오답 4문항 기록됨</span>
+          </h3>
+          <p style="font-size:12.5px;color:#475569;margin-top:3px;">
+            수험생: <strong id="wrongNoteStudentLabel">짱아</strong> | 담당 선생님 ID: <strong id="wrongNoteTeacherLabel">Zzang_AA</strong> | 채점 시 감점된 모든 문항이 자동으로 오답노트에 정리되며, 수파베이스 DB와 동기화됩니다.
+          </p>
+        </div>
+        <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="btn-outline" id="btnFilterUnmastered">🔍 미암기 오답만 보기</button>
+          <button type="button" class="btn-outline" id="btnSyncCurrentToWrongNote" style="border-color:#2563EB;color:#1E40AF;">🔄 현재 채점 감점문항 전체 담기</button>
+          <button type="button" class="btn-grade" id="btnPrintWrongNoteOnly">🖨️ 오답노트 전용 인쇄 / PDF 출력</button>
+        </div>
+      </div>
+
+      <!-- 오답노트 카드 리스트 컨테이너 -->
+      <div id="wrongNoteListContainer"></div>
+    </section>
+
+    <!-- ======================================================================
+         섹션 3: 컴활 2급 실기 모의고사 문제지 뷰어 & 스마트 문제 생성기
+         (출제문제 영역은 실제 시험장 필체: 맑은 고딕 / 굴림체 / 바탕체 적용!)
+         ====================================================================== -->
+    <section class="problem-gen-section" id="problemGeneratorSection">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;">
+        <div>
+          <h3 style="font-size:17px;color:#1E40AF;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span>🎲 컴활 2급 실기 모의고사 문제은행 &amp; 스마트 문제 생성기</span>
+            <span style="font-size:11.5px;background:#EFF6FF;color:#1E40AF;border:1px solid #93C5FD;padding:3px 10px;border-radius:999px;">2026 MS Office 2021 출제기준 · 실제 시험장 필체 적용</span>
+          </h3>
+          <p style="font-size:13px;color:#475569;margin-top:4px;">
+            기출·모의고사 5개 회차의 전체 시험 문제지를 실제 시험장 필체(<strong>맑은 고딕 11pt / 굴림체 / 바탕체</strong>)로 열람하거나, 원하는 테마를 골라 <strong>새로운 모의고사 문제지 + 8개 시트 엑셀 파일(`.xlsx`)</strong>을 즉시 생성할 수 있습니다!
+          </p>
+        </div>
+        <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="btn-outline" id="btnToggleAnswers" style="border-color:#059669;color:#059669;">💡 모범 정답 수식 모두 보기/숨기기</button>
+          <button type="button" class="btn-outline" id="btnPrintExamPaperOnly">🖨️ 시험 문제지 인쇄</button>
+          <button type="button" class="btn-grade" id="btnDownloadCurrentExamXlsx">📥 이 회차 문제 엑셀(.xlsx) 다운로드</button>
+          <button type="button" class="btn-outline" id="btnDownloadCurrentAnsXlsx" style="border-color:#2563EB;color:#1E40AF;">🏆 이 회차 정답 엑셀(.xlsx) 다운로드</button>
+        </div>
+      </div>
+
+      <!-- 문제 생성기 컨트롤 바 -->
+      <div class="gen-controls-grid no-print">
+        <div>
+          <label style="font-size:12px;color:#1E40AF;display:block;margin-bottom:5px;"><strong>① 출제 테마 (업종 데이터)</strong></label>
+          <select class="form-select" id="genThemeSelect">
+            <option value="random">🎲 랜덤 업종 테마 자동 선택</option>
+            <option value="mart">🛒 한빛마트 지점별 매출·재고 현황</option>
+            <option value="hospital">🏥 서울메디컬 진료·입원비 정산</option>
+            <option value="academy">🎓 미래IT아카데미 수강생 성적·장학금</option>
+            <option value="logistics">🚚 대한특송 화물운송·배차 관리</option>
+            <option value="hotel">🏨 오션뷰호텔 객실예약·멤버십</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;color:#1E40AF;display:block;margin-bottom:5px;"><strong>② 계산작업(40점) 집중 함수팩</strong></label>
+          <select class="form-select" id="genFuncPackSelect">
+            <option value="standard">⚖️ 상시시험 단골 표준 조합 (VLOOKUP+IF+DAVERAGE)</option>
+            <option value="lookup">🔍 찾기·참조 집중 (INDEX+MATCH, HLOOKUP, CHOOSE)</option>
+            <option value="new2026">🆕 2026 신유형 포함 (IFS, SWITCH, WORKDAY, EDATE)</option>
+            <option value="stat">📊 조건부 통계 집중 (SUMIFS, COUNTIFS, AVERAGEIFS, RANK.EQ)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;color:#1E40AF;display:block;margin-bottom:5px;"><strong>③ 시험지 필체 선택 (실제 수험장 서체)</strong></label>
+          <select class="form-select" id="examFontSelect">
+            <option value="exam-font-malgun">맑은 고딕 (MS Office 2021 엑셀·CBT 표준)</option>
+            <option value="exam-font-gulim">굴림 / 굴림체 (상공회의소 실기 지시사항 서체)</option>
+            <option value="exam-font-batang">바탕 / 바탕체 (국가기술자격 인쇄 시험지 서체)</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:flex-end;">
+          <button type="button" class="btn-purple" id="btnGenerateNewExam" style="height:38px;font-size:13px;">
+            ✨ 새 모의고사 문제 + 엑셀 즉시 생성!
+          </button>
+        </div>
+      </div>
+
+      <!-- 현재 선택/생성된 회차 시험지 헤더 -->
+      <div style="background:linear-gradient(135deg, #111827 0%, #1E3A8A 100%);color:#FFFFFF;padding:13px 18px;border-radius:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div>
+          <span style="background:#2563EB;padding:3px 10px;border-radius:999px;font-size:11px;margin-right:8px;" id="examPaperBadge">현재 시험지</span>
+          <strong style="font-size:15px;" id="examPaperTitle">대표기출따라하기 — 컴퓨터활용능력 2급 실기 시험지 (시험시간: 40분 / 합격기준: 70점)</strong>
+        </div>
+        <span style="font-size:12px;color:#93C5FD;" id="examPaperMeta">적용 서체: 맑은 고딕 11pt (Office 2021 표준) | 총 8개 시트</span>
+      </div>
+
+      <!-- 4대 영역 시험 문제지 그리드 (실제 시험 필체 전용 영역) -->
+      <div class="exam-paper-sheet exam-font-malgun" id="examPaperSheetWrapper">
+        <div class="exam-paper-grid" id="examPaperContainer"></div>
+      </div>
+    </section>
+
+    <!-- 중단 액션 버튼: 점수별 통계보기 & 동영상 강좌 -->
+    <div class="center-actions">
+      <button class="btn-stat-toggle" id="btnToggleStats" type="button">📊 점수별 통계보기</button>
+      <button class="btn-video-main" id="btnOpenVideoModal" type="button">▶️ 동영상 강좌</button>
+    </div>
+
+    <!-- 하단 누적점수 순위 2열 카드 -->
+    <div class="ranking-grid">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">👑 학생 누적점수 순위</div>
+          <span style="font-size:11.5px;color:#475569;">상위 TOP 10</span>
+        </div>
+        <div id="studentRankingChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">🏵️ 선생님 누적점수 순위</div>
+          <span style="font-size:11.5px;color:#475569;">클래스 누적 활성도</span>
+        </div>
+        <div id="teacherRankingChart"></div>
+      </section>
+    </div>
+
+    <!-- 점수별 통계보기 및 학생/선생님 조회 섹션 -->
+    <section class="stats-section" id="statsSection">
+      <div class="pie-grid-top">
+        <!-- 총점수 비율 파이차트 -->
+        <div class="pie-card">
+          <h4>해당 회차의 총점수 비율(명)</h4>
+          <div class="pie-canvas-wrap">
+            <canvas id="pieTotal" width="210" height="175"></canvas>
+            <ul class="pie-legend" id="legendTotal"></ul>
+          </div>
+        </div>
+
+        <!-- 개인 취약점 6각형 레이더 차트 -->
+        <div class="pie-card" id="radarUpgradeBox" style="background:linear-gradient(145deg, #EFF6FF 0%, #FFFFFF 65%);border:1px solid #93C5FD;border-radius:12px;padding:16px;width:100%;">
+          <div style="display:flex;justify-content:space-between;width:100%;align-items:center;margin-bottom:8px;">
+            <h4 style="margin:0;color:#1E40AF;">🎯 개인 취약 영역 6각형 레이더 차트 &amp; 맞춤 학습 처방</h4>
+            <span style="font-size:11.5px;background:#2563EB;color:#FFFFFF;padding:3px 10px;border-radius:999px;" id="radarTargetLabel">짱아 수험생</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:100%;">
+            <canvas id="radarCanvas" width="210" height="185"></canvas>
+            <div style="flex:1;min-width:190px;font-size:12.5px;" id="radarPrescription"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 문제 1 ~ 4 비율 파이차트 4종 -->
+      <div class="pie-grid-sub">
+        <div class="pie-card">
+          <h4>문제1 비율(명) - 기본작업[20점]</h4>
+          <div class="pie-canvas-wrap">
+            <canvas id="pieP1" width="190" height="160"></canvas>
+            <ul class="pie-legend" id="legendP1"></ul>
+          </div>
+        </div>
+        <div class="pie-card">
+          <h4>문제2 비율(명) - 계산작업[40점]</h4>
+          <div class="pie-canvas-wrap">
+            <canvas id="pieP2" width="190" height="160"></canvas>
+            <ul class="pie-legend" id="legendP2"></ul>
+          </div>
+        </div>
+        <div class="pie-card">
+          <h4>문제3 비율(명) - 분석작업[20점]</h4>
+          <div class="pie-canvas-wrap">
+            <canvas id="pieP3" width="190" height="160"></canvas>
+            <ul class="pie-legend" id="legendP3"></ul>
+          </div>
+        </div>
+        <div class="pie-card">
+          <h4>문제4 비율(명) - 기타작업[20점]</h4>
+          <div class="pie-canvas-wrap">
+            <canvas id="pieP4" width="190" height="160"></canvas>
+            <ul class="pie-legend" id="legendP4"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 학생 닉네임 조회 박스 -->
+      <div class="lookup-bar" id="studentLookupBar">
+        <div class="lookup-input-group">
+          <input type="text" id="lookupStudentInput" placeholder="채점할때 [학생닉네임]에 입력한 명칭을 입력후 [보기]버튼을 클릭하면 자신의 회차별 점수를 한번에 볼 수 있습니다." value="짱아" />
+          <button type="button" id="btnLookupStudent">보기</button>
+        </div>
+      </div>
+      <div class="lookup-result-panel" id="studentHistoryPanel" style="display:none;"></div>
+
+      <!-- 선생님 ID 조회 박스 -->
+      <div class="lookup-bar" id="teacherLookupBar">
+        <div class="lookup-input-group">
+          <input type="text" id="lookupTeacherInput" placeholder="선생님ID(4자이상)" value="Zzang_AA" />
+          <button type="button" id="btnLookupTeacher">보기</button>
+        </div>
+      </div>
+      <div class="lookup-result-panel" id="teacherReportPanel" style="display:none;"></div>
+    </section>
+
+    <!-- 하단 배너 및 푸터 -->
+    <div class="study-banner">
+      <div style="font-size:28px;">🥇 🥇 🥇 🥇</div>
+      <div>
+        <div style="font-size:22px;letter-spacing:0.5px;"><strong>Zzang_AA's스터디카페</strong></div>
+        <div style="font-size:12.5px;opacity:0.95;">함께 공부하면 합격률이 2배! 기출 질문과 오답 노트를 실시간으로 공유하세요</div>
+      </div>
+    </div>
+
+    <footer class="footer-copy">
+      © 2026 - Programmed by kys (test@hanafostest.com) | Zzang_AA's 컴퓨터활용능력 2급 실기 스마트 웹 자동채점 &amp; 모의고사 플랫폼
+    </footer>
+  </main>
+
+  <!-- 문항별 타임스탬프 연동 동영상 강좌 모달 -->
+  <div class="modal-backdrop" id="videoModal">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-size:16px;color:#0F172A;" id="videoModalTitle">🎬 문항별 타임스탬프 연동 해설 강좌</h3>
+        <button class="btn-outline" id="btnCloseVideoModal" type="button">✖ 닫기</button>
+      </div>
+      <div style="background:linear-gradient(135deg, #111827 0%, #1E3A8A 100%);color:#FFFFFF;border-radius:12px;padding:22px;margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="background:#2563EB;border:1px solid #93C5FD;padding:3px 12px;border-radius:999px;font-size:12px;" id="videoTimestampBadge">⏱️ 11:45 구간 재생 중</span>
+          <span style="font-size:12px;color:#93C5FD;">2026 이기적 컴활 2급 실기 대표기출 해설</span>
+        </div>
+        <h4 style="font-size:17px;color:#38BDF8;margin-bottom:10px;" id="videoChapterHeadline">계산작업 1번: TIME 함수를 활용한 셔틀버스 도착시간 구하기</h4>
+        <p style="font-size:13px;color:#F8FAFC;line-height:1.65;" id="videoChapterGuide">
+          핵심 공식: <code>=C3+TIME(0, B3*8, 0)</code><br/>
+          출발시간(C3)에 정류장수(B3)×8분을 더할 때는 TIME(시, 분, 초) 함수를 사용합니다.
+        </p>
+      </div>
+      <div style="margin-bottom:8px;font-size:12.5px;color:#0F172A;"><strong>📌 전 문항 타임스탬프 바로가기 (클릭 시 이동)</strong></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;" id="videoChapterButtons">
+        <button class="timestamp-btn" data-ts="00:45" data-title="기본작업-1: 데이터 입력 (5점)">00:45 기본작업-1</button>
+        <button class="timestamp-btn" data-ts="03:20" data-title="기본작업-2: 셀 서식 5문항 (10점)">03:20 기본작업-2</button>
+        <button class="timestamp-btn" data-ts="07:10" data-title="기본작업-3: 조건부 서식 =$E4>=7 (5점)">07:10 기본작업-3</button>
+        <button class="timestamp-btn" data-ts="11:45" data-title="계산작업 1번: [표1] TIME 함수 (8점)">11:45 계산작업(1)</button>
+        <button class="timestamp-btn" data-ts="15:20" data-title="계산작업 2번: [표2] IF·AND·AVERAGE (8점)">15:20 계산작업(2)</button>
+        <button class="timestamp-btn" data-ts="18:50" data-title="계산작업 3번: [표3] ROUND·DAVERAGE (8점)">18:50 계산작업(3)</button>
+        <button class="timestamp-btn" data-ts="21:30" data-title="계산작업 4번: [표4] INDEX·MATCH (8점)">21:30 계산작업(4)</button>
+        <button class="timestamp-btn" data-ts="23:40" data-title="계산작업 5번: [표5] CHOOSE·LEFT (8점)">23:40 계산작업(5)</button>
+        <button class="timestamp-btn" data-ts="25:30" data-title="분석작업-1: 목표값 찾기 (10점)">25:30 분석작업-1</button>
+        <button class="timestamp-btn" data-ts="30:10" data-title="분석작업-2: 데이터 통합 (10점)">30:10 분석작업-2</button>
+        <button class="timestamp-btn" data-ts="34:00" data-title="매크로작업 1·2번: 기록 및 도형 지정 (10점)">34:00 매크로작업</button>
+        <button class="timestamp-btn" data-ts="37:20" data-title="차트작업 1~5번: 보드게임 차트 수정 (10점)">37:20 차트작업</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 도움말 및 채점기준 모달 -->
+  <div class="modal-backdrop" id="helpModal">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-size:16px;color:#0F172A;">📘 컴퓨터활용능력 2급 실기 합격 기준 및 채점 방식</h3>
+        <button class="btn-outline" id="btnCloseHelpModal" type="button">✖ 닫기</button>
+      </div>
+      <div style="font-size:13px;color:#1E293B;line-height:1.65;max-height:70vh;overflow-y:auto;">
+        <p style="margin-bottom:8px;"><strong>1. 합격 기준:</strong> 100점 만점 중 <strong>70점 이상 합격</strong> (시험시간 40분, 과락 없음)</p>
+        <p style="margin-bottom:6px;"><strong>2. 영역별 배점 및 부분점수 기준:</strong></p>
+        <ul style="padding-left:18px;margin-bottom:12px;">
+          <li><strong>기본작업 (20점):</strong> 기본작업-1 데이터 입력(5점, <em>부분점수 없음</em>) / 기본작업-2 셀 서식(10점, 5문항 각 2점 <strong>부분점수 있음</strong>) / 기본작업-3 조건부서식·필터(5점, <em>부분점수 없음</em>)</li>
+          <li><strong>계산작업 (40점):</strong> 함수 문제 5문항 각 8점 (<em>부분점수 없음</em>). 문제에 제시된 함수를 모두 사용하고 결과값이 정확히 일치하면 참조 방식($) 등이 달라도 정답 인정.</li>
+          <li><strong>분석작업 (20점):</strong> 피벗테이블, 목표값 찾기, 데이터 통합, 부분합 등 2문제 각 10점 (<em>부분점수 없음</em>).</li>
+          <li><strong>기타작업 (20점):</strong> 매크로작업 2문제 각 5점(<strong>부분점수 있음</strong>) + 차트작업 5문항 각 2점(<strong>부분점수 있음</strong>).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
