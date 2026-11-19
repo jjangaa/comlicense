@@ -1,6 +1,5 @@
 {
-  "version": 2,
-  "cleanUrls": true,
+  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/chk_page",
