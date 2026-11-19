@@ -1,8 +1,6 @@
 {
   "name": "comlicense-grading-platform",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
-  "scripts": {
-    "build": "echo Static build complete"
-  }
+  "main": "index.js"
 }
