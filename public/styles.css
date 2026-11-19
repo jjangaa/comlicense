@@ -380,13 +380,15 @@ strong, b, th, button, select,
   color: var(--viz-step-1);
 }
 
-/* 2-Column Main Grid (100% Full Screen Fluid Ratio) */
+/* 2x2 Equal-Height Main Grid (좌우 높이와 여백이 100% 완벽히 맞아떨어지는 4카드 대칭 구조) */
 .main-grid {
   display: grid;
-  grid-template-columns: minmax(390px, 31%) 1fr;
+  grid-template-columns: minmax(400px, 34%) 1fr;
+  grid-auto-rows: auto;
   gap: 18px;
-  align-items: start;
+  align-items: stretch;
   width: 100%;
+  margin-bottom: 20px;
 }
 
 @media (max-width: 1024px) {
@@ -399,9 +401,58 @@ strong, b, th, button, select,
   border: 1px solid var(--border-subtle);
   padding: 20px;
   box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
-  margin-bottom: 18px;
+  margin-bottom: 0;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.ranking-grid .card {
+  height: 100%;
+}
+
+.subitem-pills-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.subitem-pill {
+  font-size: 11.5px;
+  font-family: var(--font-medium);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.subitem-pill.pass {
+  background: var(--status-correct-bg);
+  border-color: #A7F3D0;
+  color: var(--status-correct-tx);
+}
+
+.subitem-pill.fail {
+  background: var(--status-wrong-bg);
+  border-color: #FECDD3;
+  color: var(--status-wrong-tx);
+}
+
+.subitem-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
 }
 
 .card:hover {
@@ -536,7 +587,7 @@ strong, b, th, button, select,
 .stat-pill-blue { background: var(--bg-tint); border: 1px solid var(--border-accent); color: var(--grad-start); padding: 4px 12px; border-radius: 999px; font-size: 12px; }
 .stat-pill-green { background: var(--status-correct-bg); border: 1px solid #A7F3D0; color: var(--status-correct-tx); padding: 4px 12px; border-radius: 999px; font-size: 12px; }
 
-.deduction-table-wrap { border: 1px solid var(--border-subtle); border-radius: 10px; overflow: hidden; max-height: 390px; overflow-y: auto; }
+.deduction-table-wrap { border: 1px solid var(--border-subtle); border-radius: 10px; overflow: hidden; flex: 1; min-height: 280px; max-height: 440px; overflow-y: auto; }
 .deduction-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .deduction-table thead th {
   background: var(--grad-dark-stage); color: #FFFFFF; padding: 11px 13px; text-align: left; position: sticky; top: 0; z-index: 2; font-size: 12.5px;
