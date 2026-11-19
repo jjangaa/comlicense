@@ -78,12 +78,11 @@
       </div>
     </section>
 
-    <!-- 메인 2단 그리드 (100% 풀스크린 반응형 비율) -->
+    <!-- 메인 2x2 대칭 그리드 (1행: 문제선택 + 감점내역 / 2행: 작업별 상세점수 + 오답 셀 정밀비교·13대 문항 스코어보드) -->
     <div class="main-grid">
-      <!-- 왼쪽 컬럼 -->
-      <div class="left-col">
-        <!-- 카드 1: 문제 유형 선택 -->
-        <section class="card" id="problemSelectCard">
+      <!-- [1행 좌측] 카드 1: 문제 유형 선택 -->
+      <section class="card" id="problemSelectCard">
+        <div>
           <div class="card-header">
             <div class="card-title">📋 문제 유형 선택</div>
             <div class="timer-widget" id="examTimerBtn" title="클릭하여 40분 실전 시험 타이머 시작/일시정지">
@@ -162,20 +161,53 @@
               <div class="preflight-item">✔️ 엑셀 파일을 선택하거나 위 샘플 버튼을 누르면 채점 전 시트 누락·수식 누락을 즉시 진단합니다.</div>
             </div>
           </div>
+        </div>
 
-          <div class="action-bar">
-            <div class="queue-badge">
-              대기자 <span class="queue-num" id="queueCount">1</span>
-            </div>
-            <div style="display:flex; gap:8px;">
-              <button class="btn-grade" id="btnStartGrade" type="button">📝 채점시작</button>
-              <button class="btn-outline" id="btnPrint" type="button">🖨️ 성적표 인쇄</button>
-            </div>
+        <div class="action-bar">
+          <div class="queue-badge">
+            대기자 <span class="queue-num" id="queueCount">1</span>
           </div>
-        </section>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-grade" id="btnStartGrade" type="button">📝 채점시작</button>
+            <button class="btn-outline" id="btnPrint" type="button">🖨️ 성적표 인쇄</button>
+          </div>
+        </div>
+      </section>
 
-        <!-- 카드 2: 작업별 상세 점수 -->
-        <section class="card" id="sectionScoreCard">
+      <!-- [1행 우측] 카드 2: 감점 내역 및 분석 (좌측 문제 유형 선택 카드와 1:1 높이 대칭) -->
+      <section class="card" id="deductionCard">
+        <div class="card-header">
+          <div class="card-title">📊 감점 내역 및 분석</div>
+          <div class="stat-badges">
+            <span class="stat-pill-blue">👤 인원: <span id="statParticipants">2103</span>명</span>
+            <span class="stat-pill-green">📈 평균: <span id="statAverage">39.01</span>점</span>
+          </div>
+        </div>
+
+        <div class="deduction-table-wrap">
+          <table class="deduction-table">
+            <thead>
+              <tr>
+                <th style="width:110px;">문제번호</th>
+                <th style="width:155px;">작업내용</th>
+                <th style="width:65px;">감점</th>
+                <th>오류 상세내용</th>
+                <th style="width:155px;">상세 비교 · 해설</th>
+              </tr>
+            </thead>
+            <tbody id="deductionTableBody"></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:12px;padding:10px 14px;background:var(--bg-tint);border:1px solid var(--border-accent);border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--viz-step-1);">
+          <span>💡 위 감점 표에서 문항을 클릭하면 아래 <strong>[오답 셀 정밀 비교]</strong> 카드에 내 수식과 모범 정답이 나란히 표시됩니다.</span>
+          <button type="button" class="minimap-btn" onclick="document.getElementById('wrongNoteSection').scrollIntoView({behavior:'smooth'})">📝 전체 오답노트 바로가기</button>
+        </div>
+      </section>
+
+      <!-- [2행 좌측] 카드 3: 작업별 상세 점수 -->
+      <section class="card" id="sectionScoreCard">
+        <div>
           <div class="card-header">
             <div class="card-title">🎓 작업별 상세 점수</div>
             <span style="font-size:11.5px;color:#475569;">합격기준: 70점 이상</span>
@@ -216,69 +248,46 @@
               <span id="scoreEtcText">0 / 20점</span>
             </div>
           </div>
+        </div>
 
-          <div class="total-score-banner" id="totalScoreBanner">
-            <div class="label">TOTAL SCORE</div>
-            <div class="score-val"><span id="totalScoreNum">0</span> <span style="font-size:18px;">점</span></div>
-            <div class="pass-pill" id="passStatusPill">채점 전 (70점 이상 합격)</div>
-          </div>
-        </section>
-      </div>
+        <div class="total-score-banner" id="totalScoreBanner">
+          <div class="label">TOTAL SCORE</div>
+          <div class="score-val"><span id="totalScoreNum">0</span> <span style="font-size:18px;">점</span></div>
+          <div class="pass-pill" id="passStatusPill">채점 전 (70점 이상 합격)</div>
+        </div>
+      </section>
 
-      <!-- 오른쪽 컬럼: 감점 내역 및 분석 + 오답 셀 비교 & 해설 타임스탬프 -->
-      <div class="right-col">
-        <section class="card" id="deductionCard">
+      <!-- [2행 우측] 카드 4: 오답 셀 정밀 비교 & 13대 세부 문항 스코어보드 (작업별 상세 점수 우측 여백을 100% 채우는 대칭 카드!) -->
+      <section class="card" id="visualDiffPanel">
+        <div>
           <div class="card-header">
-            <div class="card-title">📊 감점 내역 및 분석</div>
-            <div class="stat-badges">
-              <span class="stat-pill-blue">👤 인원: <span id="statParticipants">2103</span>명</span>
-              <span class="stat-pill-green">📈 평균: <span id="statAverage">39.01</span>점</span>
+            <div class="card-title">🔬 선택 문항 오답 셀 정밀 비교 &amp; 세부 문항별 채점 현황</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button class="minimap-btn" id="btnAddSelectedToWrongNote" type="button">📝 이 문항 오답노트에 강조 추가</button>
+              <button class="timestamp-btn" id="btnDiffVideoJump" type="button">🎬 이 문항 해설 바로보기 (11:45)</button>
             </div>
           </div>
 
-          <div class="deduction-table-wrap">
-            <table class="deduction-table">
-              <thead>
-                <tr>
-                  <th style="width:110px;">문제번호</th>
-                  <th style="width:155px;">작업내용</th>
-                  <th style="width:65px;">감점</th>
-                  <th>오류 상세내용</th>
-                  <th style="width:155px;">상세 비교 · 해설</th>
-                </tr>
-              </thead>
-              <tbody id="deductionTableBody"></tbody>
-            </table>
-          </div>
+          <!-- 13대 세부 문항 실시간 득점/감점 신호등 바 -->
+          <div class="subitem-pills-bar" id="subItemStatusPills"></div>
 
-          <!-- 오답 셀 미니맵 비교 & 1:1 오답 코치 패널 -->
-          <div class="visual-diff-panel" id="visualDiffPanel">
-            <div class="visual-diff-header">
-              <div style="font-size:14px;color:#0F172A;">
-                <strong>🔬 오답 셀 비교 (내 엑셀 파일 vs 모범 정답)</strong>
-              </div>
-              <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button class="minimap-btn" id="btnAddSelectedToWrongNote" type="button">📝 이 문항 오답노트에 강조 추가</button>
-                <button class="timestamp-btn" id="btnDiffVideoJump" type="button">🎬 이 문항 해설 바로보기 (11:45)</button>
-              </div>
-            </div>
-            <div class="coach-bubble" id="aiCoachBubble"></div>
-            <div id="diffGridContainer">
-              <table class="excel-diff-grid">
-                <thead>
-                  <tr>
-                    <th style="width:140px;">시트 / 셀 주소</th>
-                    <th>내 파일 입력값·수식 (수험생)</th>
-                    <th>모범 정답값·수식 (채점 기준)</th>
-                    <th style="width:90px;">판정</th>
-                  </tr>
-                </thead>
-                <tbody id="diffTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-      </div>
+          <div class="coach-bubble" id="aiCoachBubble"></div>
+        </div>
+
+        <div id="diffGridContainer" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;">
+          <table class="excel-diff-grid">
+            <thead>
+              <tr>
+                <th style="width:140px;">시트 / 셀 주소</th>
+                <th>내 파일 입력값·수식 (수험생)</th>
+                <th>모범 정답값·수식 (채점 기준)</th>
+                <th style="width:90px;">판정</th>
+              </tr>
+            </thead>
+            <tbody id="diffTableBody"></tbody>
+          </table>
+        </div>
+      </section>
     </div>
 
     <!-- 웹페이지 사용법 가이드 & 실전 샘플 문항 · 샘플 채점표 -->
