@@ -2056,13 +2056,41 @@ function initProblemGenerator() {
 
 function initUrlParams() {
   const params = new URLSearchParams(window.location.search);
-  const co = params.get('co') || 'youngjin';
+  const co = params.get('co') || 'zzangaa';
   const year = params.get('year') || '2026';
   const subject = params.get('subject') || 'excel';
   const level = params.get('level') || '2';
   const badge = document.getElementById('urlParamBadge');
   if (badge) {
     badge.textContent = `co=${co} · year=${year} · subject=${subject} · level=${level}급`;
+  }
+
+  // Wire up Header, Quick Menu Ribbon, and Notice Banner collapse/expand toggles
+  const btnToggleHeader = document.getElementById('btnToggleHeader');
+  const topNavbar = document.getElementById('topNavbar');
+  if (btnToggleHeader && topNavbar) {
+    btnToggleHeader.addEventListener('click', () => {
+      const isCollapsed = topNavbar.classList.toggle('collapsed');
+      btnToggleHeader.textContent = isCollapsed ? '▼ 헤더 펼치기' : '▲ 헤더 접기';
+    });
+  }
+
+  const btnToggleRibbon = document.getElementById('btnToggleRibbon');
+  const quickMenuRibbon = document.getElementById('quickMenuRibbon');
+  if (btnToggleRibbon && quickMenuRibbon) {
+    btnToggleRibbon.addEventListener('click', () => {
+      const isCollapsed = quickMenuRibbon.classList.toggle('collapsed');
+      btnToggleRibbon.textContent = isCollapsed ? '▼ 메뉴바 펼치기' : '▲ 메뉴바 접기';
+    });
+  }
+
+  const btnToggleNotice = document.getElementById('btnToggleNotice');
+  const noticeBanner = document.getElementById('noticeBanner');
+  if (btnToggleNotice && noticeBanner) {
+    btnToggleNotice.addEventListener('click', () => {
+      const isCollapsed = noticeBanner.classList.toggle('collapsed');
+      btnToggleNotice.textContent = isCollapsed ? '▼ 안내 펼치기' : '▲ 안내 접기';
+    });
   }
 }
 
