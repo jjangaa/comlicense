@@ -2270,6 +2270,8 @@ function applyGradeResponse(data) {
   document.getElementById('meterEtc').style.width = `${(sec.etc / 20) * 100}%`;
   document.getElementById('scoreEtcText').textContent = `${sec.etc} / 20점`;
 
+  renderSubItemStatusPills(gr);
+
   document.getElementById('totalScoreNum').textContent = gr.totalScore;
   const passPill = document.getElementById('passStatusPill');
   const banner = document.getElementById('totalScoreBanner');
@@ -2330,6 +2332,54 @@ function applyGradeResponse(data) {
 
   document.getElementById('radarTargetLabel').textContent = `${data.studentName} 수험생`;
   drawRadarChart(gr.radarStats);
+}
+
+function renderSubItemStatusPills(gr) {
+  const pillContainer = document.getElementById('subItemStatusPills');
+  if (!pillContainer) return;
+
+  const allSubItems = [
+    { key: 'basic-1', label: '기본1 (5점)' },
+    { key: 'basic-2', label: '기본2 (10점)' },
+    { key: 'basic-3', label: '기본3 (5점)' },
+    { key: 'calc-1', label: '계산1 (8점)' },
+    { key: 'calc-2', label: '계산2 (8점)' },
+    { key: 'calc-3', label: '계산3 (8점)' },
+    { key: 'calc-4', label: '계산4 (8점)' },
+    { key: 'calc-5', label: '계산5 (8점)' },
+    { key: 'analysis-1', label: '분석1 (10점)' },
+    { key: 'analysis-2', label: '분석2 (10점)' },
+    { key: 'macro-1', label: '매크로1 (5점)' },
+    { key: 'macro-2', label: '매크로2 (5점)' },
+    { key: 'chart', label: '차트 (10점)' }
+  ];
+
+  const deductions = gr.deductions || [];
+  pillContainer.innerHTML = allSubItems.map(item => {
+    const deductIdx = deductions.findIndex(d => d.id === item.key || d.id.startsWith(item.key));
+    const isFail = deductIdx !== -1;
+    const deductPts = isFail
+      ? deductions.filter(d => d.id === item.key || d.id.startsWith(item.key)).reduce((a, b) => a + b.deduction, 0)
+      : 0;
+    return `
+      <span class="subitem-pill ${isFail ? 'fail' : 'pass'}" data-d-idx="${deductIdx}" title="${isFail ? '클릭 시 이 문항 셀 비교 보기' : '만점 획득'}">
+        ${isFail ? `🔴 ${item.label.split(' ')[0]} (${deductPts})` : `🟢 ${item.label}`}
+      </span>
+    `;
+  }).join('');
+
+  pillContainer.querySelectorAll('.subitem-pill.fail').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const idx = parseInt(pill.getAttribute('data-d-idx'), 10);
+      if (idx >= 0) {
+        const tbody = document.getElementById('deductionTableBody');
+        tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+        const targetRow = tbody.querySelector(`tr[data-idx="${idx}"]`);
+        if (targetRow) targetRow.classList.add('selected');
+        selectDeductionItem(idx);
+      }
+    });
+  });
 }
 
 function selectDeductionItem(idx) {
