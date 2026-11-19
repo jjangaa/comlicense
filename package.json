@@ -1,13 +1,9 @@
 {
   "name": "comlicense-grading-platform",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Zzang_AA 컴퓨터활용능력 2급 실기 자동채점 및 스마트 모의고사 생성 플랫폼",
-  "main": "server.js",
+  "private": true,
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "start": "node local-server.js"
   }
 }
